@@ -1,26 +1,1251 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <title>Ionic</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-  <link ios-href="build/css/app.ios.css" rel="stylesheet">
-  <link md-href="build/css/app.md.css" rel="stylesheet">
-  <link wp-href="build/css/app.wp.css" rel="stylesheet">  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRContraentrega Montebello Cali, Valle Del Cauca, Colombia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-bottom: 70px; /* Espacio para el botón fijo */
+        }
+        .navbar-brand {
+            font-weight: 700;
+        }
+        .hero-section {
+            background-color: #212529;
+            color: white;
+            padding: 4rem 0;
+        }
+        .product-card {
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .quantity-controls button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .checkout-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .payment-instructions {
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .cop-details {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .loading-spinner {
+            display: none;
+            width: 3rem;
+            height: 3rem;
+            margin: 20px auto;
+        }
+        #qrCode {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .badge-sale {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+        }
+        .inventory-badge {
+            font-size: 0.75rem;
+        }
+        .footer-link {
+            color: #ffffff;
+            text-decoration: none;
+            Pr: none;
+        }
+        .footer-link:hover {
+            text-decoration: underline;
+            color: #adb5bd;
+        }
+        #addressField {
+            display: none;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .bank-method {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        /* Estilos para el modal de producto */
+        .product-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1050;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .product-modal-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            max-width: 900px;
+            margin: 30px auto;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1;
+        }
+        .product-gallery {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .main-product-image {
+            width: 100%;
+            height: 400px;
+            object-fit: contain;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+        }
+        .gallery-nav button {
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .gallery-nav button:hover {
+            background-color: rgba(0,0,0,0.7);
+        }
+        .thumbnails-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+        }
+        .thumbnail:hover, .thumbnail.active {
+            border-color: #0d6efd;
+        }
+        .product-details {
+            margin-top: 20px;
+        }
+        .download-pdf {
+            margin-top: 20px;
+        }
+        /* Modal de imagen grande */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1060;
+            text-align: center;
+        }
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .image-modal-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            transform: translateY(-50%);
+        }
+        .image-modal-nav button {
+            background-color: rgba(255,255,255,0.3);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .image-modal-nav button:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        .close-image-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        /* Botón de carrito fijo */
+        .fixed-cart-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Para el deslizamiento de imágenes */
+        .swipe-area {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            touch-action: pan-y;
+        }
+    </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">QRContraentrega</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" href="https://www.facebook.com/share/g/1LeZfR3zJ2/">Facebook</a></li>
+                    <li class="nav-item"><a class="nav-link" href="https://chat.whatsapp.com/CMo21XbfE5hGFNzPl3wgMN">Whatsapp</a></li>
+                    <li class="nav-item"><a class="nav-link" href="https://www.google.com/maps?q=3.441764,-76.528070&ll=3.441764,-76.528070&z=15">Dirección</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tel:+573215296581">Celular</a></li>
+                    <li class="nav-item"><a class="nav-link" href="politicas.html">Cotizar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="politicas.html">Rastrear</a></li>
+                    <li class="nav-item"><a class="nav-link" href="politicas.html">Publicar</a></li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-dark position-relative" onclick="showOrderModal()">
+                        <i class="bi bi-cart-fill"></i>
+                        <span id="cartCounter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-  <ion-app></ion-app>
+    <header class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">@montebellocali</h1>
+            <p class="lead">Punto de venta 24 horas. Sector hora cero Montebello Cali, Valle Del Cauca, Colombia</p>
+        </div>
+    </header>
 
-  <!-- cordova.js required for cordova apps -->
-  <script src="cordova.js"></script>
-  <!-- Polyfill needed for platforms without Promise and Collection support -->
-  <script src="build/js/es6-shim.min.js"></script>
-  <!-- Zone.js and Reflect-metadata  -->
-  <script src="build/js/Reflect.js"></script>
-  <script src="build/js/zone.js"></script>
-  <!-- the bundle which is built from the app's source code -->
-  <script src="build/js/app.bundle.js"></script>
+    <section class="py-3 bg-light">
+        <div class="container">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar Productos y/o Servicios..." oninput="searchProducts()">
+                <button class="btn btn-dark" type="button"><i class="bi bi-search"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Botón de carrito fijo -->
+    <button class="btn btn-dark fixed-cart-btn position-relative" onclick="showOrderModal()">
+        <i class="bi bi-cart-fill"></i> Ver carrito
+        <span id="fixedCartCounter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+    </button>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4" id="productsContainer"></div>
+        </div>
+    </section>
+
+    <!-- Modal de producto -->
+    <div id="productModal" class="product-modal">
+        <div class="product-modal-content">
+            <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="product-gallery">
+                        <div class="swipe-area" id="swipeArea">
+                            <img id="modalMainImage" src="" class="main-product-image" alt="Imagen principal del producto" onclick="openImageModal(this.src)">
+                        </div>
+                        <div class="gallery-nav">
+                            <button onclick="navigateGallery(-1)"><i class="bi bi-chevron-left"></i></button>
+                            <button onclick="navigateGallery(1)"><i class="bi bi-chevron-right"></i></button>
+                        </div>
+                        <div class="thumbnails-container" id="thumbnailsContainer"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h2 id="modalProductName"></h2>
+                    <p class="text-success fs-4 fw-bold" id="modalProductPrice"></p>
+                    <p class="text-muted" id="modalProductDescription"></p>
+                    
+                    <div class="quantity-controls mb-4">
+                        <button class="btn btn-outline-secondary" onclick="adjustModalQuantity(-1)">-</button>
+                        <span id="modalQuantity" class="px-3 fs-5">1</span>
+                        <button class="btn btn-outline-secondary" onclick="adjustModalQuantity(1)">+</button>
+                    </div>
+                    
+                    <button class="btn btn-dark w-100 mb-3" id="modalAddToCartBtn">
+                        <i class="bi bi-cart-plus"></i> Añadir al carrito
+                    </button>
+                    
+                    <div class="download-pdf">
+                        <button class="btn btn-outline-primary w-100" onclick="generateProductPDF(currentProduct.id)">
+                            <i class="bi bi-file-earmark-pdf"></i> Descargar ficha técnica
+                        </button>
+                    </div>
+                    
+                    <div class="product-details mt-4" id="modalProductDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de imagen grande -->
+    <div id="imageModal" class="image-modal">
+        <span class="close-image-modal" onclick="closeImageModal()">&times;</span>
+        <img id="expandedImage" class="image-modal-content" src="" alt="Imagen ampliada">
+        <div class="image-modal-nav">
+            <button onclick="navigateImageModal(-1)"><i class="bi bi-chevron-left"></i></button>
+            <button onclick="navigateImageModal(1)"><i class="bi bi-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Modal de pedido -->
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tu Pedido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderSummary"></div>
+                    
+                    <div id="checkoutFormSection">
+                        <div class="checkout-section">
+                            <h5>Método de Entrega</h5>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="deliveryMethod" id="pickup" value="pickup" checked>
+                                <label class="form-check-label" for="pickup">Recoger en tienda</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="deliveryMethod" id="delivery" value="delivery">
+                                <label class="form-check-label" for="delivery">Envío a domicilio (+$5,000)</label>
+                            </div>
+                            
+                            <form id="customerForm" class="mt-3" novalidate>
+                                <div class="mb-3">
+                                    <label for="customerName" class="form-label">Nombre completo*</label>
+                                    <input type="text" class="form-control" id="customerName" required minlength="3" pattern="[A-Za-z\s]+" title="El nombre solo debe contener letras y espacios">
+                                    <div class="invalid-feedback">Por favor ingresa un nombre válido (mínimo 3 caracteres, solo letras y espacios).</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="customerPhone" class="form-label">Teléfono*</label>
+                                    <input type="tel" class="form-control" id="customerPhone" required pattern="[0-9]{10}" title="El teléfono debe tener 10 dígitos">
+                                    <div class="invalid-feedback">Por favor ingresa un número de teléfono válido (10 dígitos).</div>
+                                </div>
+                                <div class="mb-3" id="addressField" style="display: none;">
+                                    <label for="customerAddress" class="form-label">Dirección completa*</label>
+                                    <input type="text" class="form-control" id="customerAddress" minlength="10" title="La dirección debe tener al menos 10 caracteres">
+                                    <div class="invalid-feedback">Por favor ingresa una dirección válida (mínimo 10 caracteres).</div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                                    <button type="button" class="btn btn-primary me-md-2" onclick="processPayment('COP')">
+                                        <i class="bi bi-cash-coin"></i> Pagar A Cuotas
+                                    </button>
+                                    <button type="button" class="btn btn-warning" onclick="processPayment('Bitcoin')">
+                                        <i class="bi bi-currency-bitcoin"></i> Pagar Al Recibir
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="text-center mt-3">
+                                <div id="loadingSpinner" class="spinner-border text-primary loading-spinner" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="copPaymentSection" class="cop-details" style="display: none;">
+                        <h4><i class="bi bi-cash-coin"></i> Pago en Pesos Colombianos</h4>
+                        <p>✅ Total a pagar: <strong id="copTotalAmount"></strong></p>
+                        <p>📝 Número de pedido: <strong id="copOrderNumber"></strong></p>
+                        
+                        <div class="bank-method">
+                            <h5><i class="bi bi-bank"></i> Transferencia Bancolombia</h5>
+                            <p><strong>Cuenta:</strong> 1234567890</p>
+                            <p><strong>Titular:</strong> Nombre del Titular</p>
+                            <p><strong>Tipo:</strong> Ahorros</p>
+                        </div>
+                        
+                        <div class="bank-method">
+                            <h5><i class="bi bi-phone"></i> Nequi</h5>
+                            <p><strong>Número:</strong> 3123456789</p>
+                            <p><strong>Titular:</strong> Nombre del Titular</p>
+                        </div>
+                        
+                        <div class="bank-method">
+                            <h5><i class="bi bi-wallet"></i> DaviPlata</h5>
+                            <p><strong>Número:</strong> 3123456789</p>
+                            <p><strong>Titular:</strong> Nombre del Titular</p>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <p>💰 Por favor envía el monto exacto</p>
+                            <p>📦 Envía el comprobante por WhatsApp al <strong>3123456789</strong> con tu número de pedido</p>
+                        </div>
+                        
+                        <div class="d-grid mt-3">
+                            <button class="btn btn-success" onclick="completeOrder()">
+                                <i class="bi bi-check-circle"></i> Confirmar pago
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="bitcoinPaymentSection" class="payment-instructions" style="display: none;">
+                        <h4><i class="bi bi-currency-bitcoin"></i> Pago con Bitcoin</h4>
+                        <p>✅ Total a pagar: <strong id="bitcoinTotalAmount"></strong></p>
+                        <p>🔗 Dirección Bitcoin: <strong>1CAW26tepzcozWR58tMmSq5Sx44RCBtLXL</strong></p>
+                        <p>📝 Número de pedido: <strong id="bitcoinOrderNumber"></strong></p>
+                        
+                        <div id="qrCode" class="mb-3"></div>
+                        
+                        <div class="alert alert-warning">
+                            <p>⚠️ El cliente asume las comisiones de red</p>
+                            <p>📌 Incluye el número de pedido en el memo de la transacción</p>
+                        </div>
+                        
+                        <div class="d-grid mt-3">
+                            <button class="btn btn-success" onclick="completeOrder()">
+                                <i class="bi bi-check-circle"></i> Confirmar pago
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="successMessage" class="alert alert-success mt-3" style="display: none;">
+                        <h5><i class="bi bi-check-circle-fill"></i> ¡Pedido confirmado!</h5>
+                        <p>Tu pedido <strong id="confirmedOrderNumber"></strong> ha sido recibido.</p>
+                        <p>Nos comunicaremos contigo para confirmar el pago.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-1">FZ2 - Contraentregaco FZ</p>
+            <p class="mb-1" id="caliDateTime">Cali, Colombia: <span id="currentDateTime"></span></p>
+            <p class="mb-0"><a href="politicas.html" class="footer-link">Políticas de la empresa</a></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        // Configuración
+        const BITCOIN_ADDRESS = "1CAW26tepzcozWR58tMmSq5Sx44RCBtLXL";
+        const FORMSPREE_ENDPOINT = "https://formspree.io/f/xyzererb";
+        const CLOUDFLARE_WORKER = "https://fz1.fz1-27c.workers.dev/";
+        const DELIVERY_FEE = 5000;
+
+        // Datos de productos mejorados con múltiples imágenes y descripción detallada
+        const products = [
+            {
+                id: 1,
+                name: "Producto Premium",
+                price: 120000,
+                inventory: 15,
+                images: [
+                    "image/productos/col/1010634.png"
+                ],
+                description: "Producto de alta calidad con garantía de 1 año.",
+                detailedDescription: `
+                    <h4>Características principales:</h4>
+                    <ul>
+                        <li>Materiales de primera calidad</li>
+                        <li>Garantía de 12 meses</li>
+                        <li>Diseño ergonómico</li>
+                        <li>Resistente al agua</li>
+                        <li>Incluye accesorios</li>
+                    </ul>
+                    <h4>Especificaciones técnicas:</h4>
+                    <ul>
+                        <li>Peso: 1.2 kg</li>
+                        <li>Dimensiones: 20x15x10 cm</li>
+                        <li>Color: Negro mate</li>
+                        <li>Voltaje: 110V-220V</li>
+                    </ul>
+                    <h4>Incluye:</h4>
+                    <ul>
+                        <li>Manual de usuario</li>
+                        <li>Certificado de garantía</li>
+                        <li>Cable de alimentación</li>
+                        <li>Estuche protector</li>
+                    </ul>
+                `,
+                onSale: true
+            },
+            {
+                id: 2,
+                name: "Producto Estándar",
+                price: 80000,
+                inventory: 30,
+                images: [
+                    "https://via.placeholder.com/600x400/6c757d/ffffff?text=Producto+Estándar+1",
+                    "https://via.placeholder.com/600x400/17a2b8/ffffff?text=Producto+Estándar+2",
+                    "https://via.placeholder.com/600x400/6f42c1/ffffff?text=Producto+Estándar+3"
+                ],
+                description: "Producto confiable para uso diario.",
+                detailedDescription: `
+                    <h4>Características principales:</h4>
+                    <ul>
+                        <li>Diseño funcional</li>
+                        <li>Garantía de 6 meses</li>
+                        <li>Materiales resistentes</li>
+                        <li>Fácil mantenimiento</li>
+                    </ul>
+                    <h4>Especificaciones técnicas:</h4>
+                    <ul>
+                        <li>Peso: 0.8 kg</li>
+                        <li>Dimensiones: 18x12x8 cm</li>
+                        <li>Color: Gris</li>
+                    </ul>
+                    <h4>Incluye:</h4>
+                    <ul>
+                        <li>Manual básico</li>
+                        <li>Garantía limitada</li>
+                    </ul>
+                `,
+                onSale: false
+            },
+            {
+                id: 3,
+                name: "Producto Económico",
+                price: 50000,
+                inventory: 50,
+                images: [
+                    "https://via.placeholder.com/600x400/ffc107/ffffff?text=Producto+Económico+1",
+                    "https://via.placeholder.com/600x400/6610f2/ffffff?text=Producto+Económico+2",
+                    "https://via.placeholder.com/600x400/e83e8c/ffffff?text=Producto+Económico+3",
+                    "https://via.placeholder.com/600x400/fb8c00/ffffff?text=Producto+Económico+4"
+                ],
+                description: "Solución económica sin perder calidad.",
+                detailedDescription: `
+                    <h4>Características principales:</h4>
+                    <ul>
+                        <li>Precio accesible</li>
+                        <li>Garantía de 3 meses</li>
+                        <li>Funcionalidad básica</li>
+                        <li>Ligero y portable</li>
+                    </ul>
+                    <h4>Especificaciones técnicas:</h4>
+                    <ul>
+                        <li>Peso: 0.5 kg</li>
+                        <li>Dimensiones: 15x10x5 cm</li>
+                        <li>Color: Blanco</li>
+                    </ul>
+                    <h4>Incluye:</h4>
+                    <ul>
+                        <li>Manual básico</li>
+                    </ul>
+                `,
+                onSale: true
+            },
+            {
+                id: 4,
+                name: "Producto Deluxe",
+                price: 150000,
+                inventory: 10,
+                images: [
+                    "https://via.placeholder.com/600x400/343a40/ffffff?text=Producto+Deluxe+1",
+                    "https://via.placeholder.com/600x400/20c997/ffffff?text=Producto+Deluxe+2",
+                    "https://via.placeholder.com/600x400/fd7e14/ffffff?text=Producto+Deluxe+3"
+                ],
+                description: "Edición especial con características exclusivas.",
+                detailedDescription: `
+                    <h4>Características principales:</h4>
+                    <ul>
+                        <li>Edición limitada</li>
+                        <li>Garantía extendida de 2 años</li>
+                        <li>Materiales premium</li>
+                        <li>Tecnología avanzada</li>
+                        <li>Diseño exclusivo</li>
+                    </ul>
+                    <h4>Especificaciones técnicas:</h4>
+                    <ul>
+                        <li>Peso: 1.5 kg</li>
+                        <li>Dimensiones: 22x18x12 cm</li>
+                        <li>Color: Oro/Negro</li>
+                        <li>Voltaje: 100V-240V</li>
+                        <li>Certificación IP68</li>
+                    </ul>
+                    <h4>Incluye:</h4>
+                    <ul>
+                        <li>Manual premium</li>
+                        <li>Certificado de autenticidad</li>
+                        <li>Estuche de lujo</li>
+                        <li>Accesorios exclusivos</li>
+                        <li>Soporte prioritario</li>
+                    </ul>
+                `,
+                onSale: false
+            }
+        ];
+
+        // Variables globales
+        let cart = {};
+        let currentOrderId = "";
+        let currentProduct = null;
+        let currentImageIndex = 0;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('addressField').style.display = 
+                        this.value === 'delivery' ? 'block' : 'none';
+                    updateOrderSummary();
+                });
+            });
+
+            // Configurar el botón de carrito fijo
+            setupFixedCartButton();
+
+            // Configurar el deslizamiento de imágenes
+            setupImageSwipe();
+        });
+
+        // Configurar el botón de carrito fijo
+        function setupFixedCartButton() {
+            const fixedCartBtn = document.querySelector('.fixed-cart-btn');
+            
+            // Mostrar siempre el botón
+            fixedCartBtn.style.display = 'flex';
+            
+            // Asegurarse de que esté visible al hacer scroll
+            window.addEventListener('scroll', function() {
+                fixedCartBtn.style.bottom = '20px';
+            });
+        }
+
+        // Configurar el deslizamiento de imágenes
+        function setupImageSwipe() {
+            const swipeArea = document.getElementById('swipeArea');
+            
+            if (swipeArea) {
+                swipeArea.addEventListener('touchstart', function(e) {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, false);
+
+                swipeArea.addEventListener('touchend', function(e) {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, false);
+            }
+        }
+
+        function handleSwipe() {
+            if (touchStartX - touchEndX > 50) {
+                // Deslizamiento a la izquierda - siguiente imagen
+                navigateGallery(1);
+            } else if (touchEndX - touchStartX > 50) {
+                // Deslizamiento a la derecha - imagen anterior
+                navigateGallery(-1);
+            }
+        }
+
+        // Actualizar fecha y hora
+        function updateDateTime() {
+            const options = {
+                timeZone: 'America/Bogota',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+            document.getElementById('currentDateTime').textContent = 
+                new Date().toLocaleString('es-CO', options);
+        }
+
+        // Renderizar productos
+        function renderProducts(productsToShow = products) {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = productsToShow.map(product => `
+                <div class="col-md-4 col-lg-3">
+                    <div class="card product-card h-100">
+                        ${product.onSale ? '<span class="badge bg-danger badge-sale">SALE</span>' : ''}
+                        <img src="${product.images[0]}" class="card-img-top p-3" alt="${product.name}" onclick="showProductModal(${product.id})" style="cursor: pointer;">
+                        <div class="card-body">
+                            <h5 class="card-title" onclick="showProductModal(${product.id})" style="cursor: pointer;">${product.name}</h5>
+                            <p class="card-text text-muted small">${product.description}</p>
+                            <p class="fw-bold">$${product.price.toLocaleString()}</p>
+                            <div class="quantity-controls">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity(${product.id}, -1)">-</button>
+                                <span id="quantity-${product.id}">${cart[product.id] || 0}</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity(${product.id}, 1)">+</button>
+                            </div>
+                            <span class="badge bg-secondary inventory-badge mt-2">Disponibles: ${product.inventory}</span>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button class="btn btn-sm btn-dark w-100" onclick="addToCart(${product.id})">
+                                Añadir al carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mostrar modal de producto
+        function showProductModal(productId) {
+            currentProduct = products.find(p => p.id === productId);
+            if (!currentProduct) return;
+            
+            currentImageIndex = 0;
+            
+            // Actualizar contenido del modal
+            document.getElementById('modalProductName').textContent = currentProduct.name;
+            document.getElementById('modalProductPrice').textContent = `$${currentProduct.price.toLocaleString()}`;
+            document.getElementById('modalProductDescription').textContent = currentProduct.description;
+            document.getElementById('modalProductDetails').innerHTML = currentProduct.detailedDescription;
+            document.getElementById('modalQuantity').textContent = cart[productId] || 1;
+            
+            // Configurar imágenes
+            updateProductGallery();
+            
+            // Configurar botón de añadir al carrito
+            document.getElementById('modalAddToCartBtn').onclick = function() {
+                addToCartFromModal();
+            };
+            
+            // Mostrar modal
+            document.getElementById('productModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Cerrar modal de producto
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Actualizar galería de imágenes del producto
+        function updateProductGallery() {
+            if (!currentProduct) return;
+            
+            const thumbnailsContainer = document.getElementById('thumbnailsContainer');
+            thumbnailsContainer.innerHTML = '';
+            
+            currentProduct.images.forEach((img, index) => {
+                const thumbnail = document.createElement('img');
+                thumbnail.src = img;
+                thumbnail.className = `thumbnail ${index === currentImageIndex ? 'active' : ''}`;
+                thumbnail.alt = `Miniatura ${index + 1}`;
+                thumbnail.onclick = () => {
+                    currentImageIndex = index;
+                    updateMainImage();
+                };
+                thumbnailsContainer.appendChild(thumbnail);
+            });
+            
+            updateMainImage();
+        }
+
+        // Actualizar imagen principal en el modal
+        function updateMainImage() {
+            if (!currentProduct || currentImageIndex < 0 || currentImageIndex >= currentProduct.images.length) return;
+            
+            document.getElementById('modalMainImage').src = currentProduct.images[currentImageIndex];
+            
+            // Actualizar miniaturas activas
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === currentImageIndex);
+            });
+        }
+
+        // Navegar por la galería
+        function navigateGallery(direction) {
+            if (!currentProduct) return;
+            
+            currentImageIndex += direction;
+            
+            if (currentImageIndex < 0) {
+                currentImageIndex = currentProduct.images.length - 1;
+            } else if (currentImageIndex >= currentProduct.images.length) {
+                currentImageIndex = 0;
+            }
+            
+            updateMainImage();
+        }
+
+        // Ajustar cantidad desde el modal
+        function adjustModalQuantity(change) {
+            if (!currentProduct) return;
+            
+            let newQuantity = parseInt(document.getElementById('modalQuantity').textContent) + change;
+            newQuantity = Math.max(1, Math.min(newQuantity, currentProduct.inventory));
+            document.getElementById('modalQuantity').textContent = newQuantity;
+        }
+
+        // Añadir al carrito desde el modal
+        function addToCartFromModal() {
+            if (!currentProduct) return;
+            
+            const quantity = parseInt(document.getElementById('modalQuantity').textContent);
+            
+            if ((cart[currentProduct.id] || 0) + quantity > currentProduct.inventory) {
+                alert('No hay suficiente inventario');
+                return;
+            }
+            
+            cart[currentProduct.id] = (cart[currentProduct.id] || 0) + quantity;
+            updateCartCounter();
+            document.getElementById(`quantity-${currentProduct.id}`).textContent = cart[currentProduct.id];
+            
+            // Cerrar modal después de añadir
+            closeProductModal();
+        }
+
+        // Abrir modal de imagen grande
+        function openImageModal(imageSrc) {
+            if (!currentProduct) return;
+            
+            document.getElementById('expandedImage').src = imageSrc;
+            document.getElementById('imageModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Cerrar modal de imagen grande
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Navegar por imágenes en el modal grande
+        function navigateImageModal(direction) {
+            if (!currentProduct) return;
+            
+            currentImageIndex += direction;
+            
+            if (currentImageIndex < 0) {
+                currentImageIndex = currentProduct.images.length - 1;
+            } else if (currentImageIndex >= currentProduct.images.length) {
+                currentImageIndex = 0;
+            }
+            
+            document.getElementById('expandedImage').src = currentProduct.images[currentImageIndex];
+        }
+
+        // Generar PDF del producto
+        function generateProductPDF(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Título
+            doc.setFontSize(20);
+            doc.text(`Ficha técnica: ${product.name}`, 105, 15, { align: 'center' });
+            
+            // Imagen principal (usamos la primera imagen)
+            doc.addImage(product.images[0], 'JPEG', 15, 25, 180, 100);
+            
+            // Información básica
+            doc.setFontSize(14);
+            doc.text(`Precio: $${product.price.toLocaleString()}`, 15, 140);
+            doc.text(`Disponibles: ${product.inventory} unidades`, 15, 150);
+            
+            // Descripción detallada (convertimos HTML a texto simple)
+            const descriptionText = product.detailedDescription
+                .replace(/<[^>]*>/g, '') // Eliminar etiquetas HTML
+                .replace(/\n\s+/g, '\n')  // Eliminar espacios múltiples
+                .trim();
+            
+            doc.setFontSize(12);
+            doc.text(descriptionText, 15, 160, { maxWidth: 180 });
+            
+            // Guardar PDF
+            doc.save(`Ficha_tecnica_${product.name.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        // Funciones del carrito
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product || (cart[productId] || 0) >= product.inventory) {
+                return alert('No hay suficiente inventario');
+            }
+            cart[productId] = (cart[productId] || 0) + 1;
+            updateCartCounter();
+            document.getElementById(`quantity-${productId}`).textContent = cart[productId];
+        }
+
+        function adjustQuantity(productId, change) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const currentQuantity = cart[productId] || 0;
+            let newQuantity = currentQuantity + change;
+            
+            newQuantity = Math.max(0, Math.min(newQuantity, product.inventory));
+            
+            if (newQuantity === 0) {
+                delete cart[productId];
+            } else {
+                cart[productId] = newQuantity;
+            }
+            
+            document.getElementById(`quantity-${productId}`).textContent = cart[productId] || 0;
+            updateCartCounter();
+        }
+
+        function updateCartCounter() {
+            const count = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+            document.getElementById('cartCounter').textContent = count;
+            document.getElementById('fixedCartCounter').textContent = count;
+        }
+
+        // Mostrar modal de pedido
+        function showOrderModal() {
+            if (Object.keys(cart).length === 0) {
+                alert('Tu carrito está vacío');
+                return;
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+            resetModal();
+            updateOrderSummary();
+            modal.show();
+        }
+
+        function resetModal() {
+            document.getElementById('checkoutFormSection').style.display = 'block';
+            document.getElementById('copPaymentSection').style.display = 'none';
+            document.getElementById('bitcoinPaymentSection').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Actualizar resumen del pedido
+        function updateOrderSummary() {
+            let subtotal = 0;
+            let html = '<h5 class="mb-3">Resumen de tu pedido</h5>';
+            
+            Object.entries(cart).forEach(([productId, quantity]) => {
+                const product = products.find(p => p.id == productId);
+                if (product) {
+                    const productTotal = product.price * quantity;
+                    subtotal += productTotal;
+                    
+                    html += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>${product.name} x${quantity}</span>
+                            <span>$${productTotal.toLocaleString()}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+            const deliveryCost = deliveryMethod === 'delivery' ? DELIVERY_FEE : 0;
+            const total = subtotal + deliveryCost;
+            
+            html += `
+                <hr>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span>$${subtotal.toLocaleString()}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Envío:</span>
+                    <span>$${deliveryCost.toLocaleString()}</span>
+                </div>
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Total:</span>
+                    <span>$${total.toLocaleString()}</span>
+                </div>
+            `;
+            
+            document.getElementById('orderSummary').innerHTML = html;
+        }
+
+        // Buscador de productos
+        function searchProducts() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(term) || 
+                p.description.toLowerCase().includes(term)
+            );
+            renderProducts(filtered.length > 0 ? filtered : products);
+        }
+
+        // Procesar pago
+        async function processPayment(paymentMethod) {
+            const form = document.getElementById('customerForm');
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+            if (deliveryMethod === 'delivery' && !document.getElementById('customerAddress').value.trim()) {
+                alert('Por favor ingresa una dirección de envío válida');
+                return;
+            }
+
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+
+            currentOrderId = 'ORD-' + Date.now().toString().slice(-8);
+
+            const subtotal = Object.entries(cart).reduce((sum, [productId, quantity]) => {
+                const product = products.find(p => p.id == productId);
+                return sum + (product ? product.price * quantity : 0);
+            }, 0);
+
+            const deliveryCost = deliveryMethod === 'delivery' ? DELIVERY_FEE : 0;
+            const total = subtotal + deliveryCost;
+
+            // Estructura detallada para el Worker
+            const customerDetails = {
+                name: document.getElementById('customerName').value,
+                phone: document.getElementById('customerPhone').value,
+                address: deliveryMethod === 'delivery' ? document.getElementById('customerAddress').value : 'Recoger en tienda'
+            };
+
+            const itemsDetails = Object.entries(cart).map(([productId, quantity]) => {
+                const product = products.find(p => p.id == productId);
+                return {
+                    id: productId,
+                    name: product.name,
+                    quantity: quantity,
+                    price: product.price,
+                    subtotal: product.price * quantity
+                };
+            });
+
+            const orderSummary = {
+                subtotal: subtotal,
+                deliveryFee: deliveryCost,
+                total: total,
+                paymentMethod: paymentMethod,
+                orderId: currentOrderId
+            };
+
+            // Mantener el mensaje detallado para compatibilidad
+            const detailedMessage = `
+                Cliente:
+                Nombre: ${customerDetails.name}
+                Teléfono: ${customerDetails.phone}
+                Dirección: ${customerDetails.address}
+                
+                Items:
+                ${itemsDetails.map(item => `
+                Producto: ${item.name}
+                Cantidad: ${item.quantity}
+                Precio unitario: $${item.price.toLocaleString()}
+                Subtotal: $${item.subtotal.toLocaleString()}
+                `).join('\n')}
+                
+                Resumen del pedido:
+                Subtotal: $${subtotal.toLocaleString()}
+                Costo de envío: $${deliveryCost.toLocaleString()}
+                Total: $${total.toLocaleString()}
+                Método de pago: ${paymentMethod}
+                ID del pedido: ${currentOrderId}
+            `;
+
+            const orderData = {
+                _subject: `Nuevo pedido ${currentOrderId}`,
+                name: customerDetails.name,
+                phone: customerDetails.phone,
+                address: customerDetails.address,
+                paymentMethod: paymentMethod,
+                items: detailedMessage, // Mantener para compatibilidad
+                customerDetails: customerDetails, // Nuevo campo estructurado
+                itemsDetails: itemsDetails, // Nuevo campo estructurado
+                orderSummary: orderSummary, // Nuevo campo estructurado
+                itemsJson: JSON.stringify(itemsDetails), // Mantener para Formspree
+                subtotal: subtotal,
+                deliveryFee: deliveryCost,
+                total: total,
+                orderId: currentOrderId
+            };
+
+            try {
+                // Enviar a Cloudflare Worker
+                let workerSuccess = false;
+                try {
+                    const workerResponse = await fetch(CLOUDFLARE_WORKER, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                    if (workerResponse.ok) {
+                        workerSuccess = true;
+                    } else {
+                        console.error('Cloudflare Worker error:', workerResponse.status, await workerResponse.text());
+                    }
+                } catch (workerError) {
+                    console.error('Cloudflare Worker failed:', workerError);
+                }
+
+                // Enviar a Formspree
+                let formspreeSuccess = false;
+                try {
+                    const formspreeResponse = await fetch(FORMSPREE_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                    if (formspreeResponse.ok) {
+                        formspreeSuccess = true;
+                    } else {
+                        console.error('Formspree error:', formspreeResponse.status, await formspreeResponse.text());
+                    }
+                } catch (formspreeError) {
+                    console.error('Formspree failed:', formspreeError);
+                }
+
+                if (workerSuccess || formspreeSuccess) {
+                    // Mostrar instrucciones de pago inmediatamente después de éxito
+                    showPaymentInstructions(paymentMethod, total);
+                } else {
+                    throw new Error('Ambos envíos fallaron');
+                }
+
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                document.getElementById('errorMessage').textContent = `Error al procesar el pedido: ${error.message}. Por favor intenta de nuevo o contáctanos.`;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        function showPaymentInstructions(paymentMethod, total) {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('checkoutFormSection').style.display = 'none';
+            
+            if (paymentMethod === 'COP') {
+                document.getElementById('copTotalAmount').textContent = `$${total.toLocaleString()}`;
+                document.getElementById('copOrderNumber').textContent = currentOrderId;
+                document.getElementById('copPaymentSection').style.display = 'block';
+            } else {
+                document.getElementById('bitcoinTotalAmount').textContent = `$${total.toLocaleString()}`;
+                document.getElementById('bitcoinOrderNumber').textContent = currentOrderId;
+                document.getElementById('bitcoinPaymentSection').style.display = 'block';
+                
+                document.getElementById('qrCode').innerHTML = '';
+                new QRCode(document.getElementById('qrCode'), {
+                    text: `bitcoin:${BITCOIN_ADDRESS}?amount=${total}&message=Pedido ${currentOrderId}`,
+                    width: 200,
+                    height: 200
+                });
+            }
+        }
+
+        // Completar pedido
+        function completeOrder() {
+            document.getElementById('copPaymentSection').style.display = 'none';
+            document.getElementById('bitcoinPaymentSection').style.display = 'none';
+            document.getElementById('confirmedOrderNumber').textContent = currentOrderId;
+            document.getElementById('successMessage').style.display = 'block';
+            
+            setTimeout(() => {
+                cart = {};
+                updateCartCounter();
+                renderProducts();
+                bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
+            }, 5000);
+        }
+    </script>
 </body>
 </html>
