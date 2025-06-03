@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio FZ1 - Acceso Restringido</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .directory-container {
+            display: none;
+            padding: 20px;
+        }
+        .contact-card {
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .search-box {
+            margin-bottom: 30px;
+        }
+        .category-badge {
+            font-size: 0.75rem;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <div class="text-center mb-4">
+            <h2><i class="bi bi-shield-lock"></i> Admin</h2>
+            <p class="text-muted">Ingrese sus credenciales para continuar</p>
+        </div>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Ingresar</button>
+            </div>
+        </form>
+        <div id="loginError" class="alert alert-danger mt-3 hidden"></div>
+    </div>
+
+    <!-- Directory Section -->
+    <div id="directorySection" class="container directory-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-book"></i> Directorio FZ1</h1>
+            <button id="logoutBtn" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</button>
+        </div>
+        
+        <div class="search-box">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar proveedores, clientes o contactos...">
+                </div>
+                <div class="col-md-4">
+                    <select id="categoryFilter" class="form-select">
+                        <option value="all">Todas las categorías</option>
+                        <option value="proveedor">Proveedores</option>
+                        <option value="cliente">Clientes</option>
+                        <option value="contacto">Contactos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row" id="contactsContainer">
+            <!-- Los contactos se cargarán aquí -->
+        </div>
+        
+        <div class="text-center mt-4">
+            <button id="addContactBtn" class="btn btn-success"><i class="bi bi-plus-circle"></i> Agregar Nuevo Contacto</button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Contact Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Agregar Nuevo Contacto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="contactForm">
+                        <input type="hidden" id="contactId">
+                        <div class="mb-3">
+                            <label for="contactName" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="contactName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactCompany" class="form-label">Empresa</label>
+                            <input type="text" class="form-control" id="contactCompany">
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactPhone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="contactPhone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactEmail" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="contactEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactCategory" class="form-label">Categoría</label>
+                            <select class="form-select" id="contactCategory" required>
+                                <option value="proveedor">Proveedor</option>
+                                <option value="cliente">Cliente</option>
+                                <option value="contacto">Contacto General</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactNotes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="contactNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveContactBtn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Base de datos de usuarios y contactos (en un caso real, esto vendría de un backend)
+        const database = {
+            users: [
+                { username: "admin", password: "admin123" },
+                { username: "fz1", password: "contraentregaco" }
+            ],
+            contacts: [
+                {
+                    id: 1,
+                    name: "Carlos Pérez",
+                    company: "Suministros Industriales S.A.",
+                    phone: "3151234567",
+                    email: "carlos@suministros.com",
+                    category: "proveedor",
+                    notes: "Proveedor de materiales eléctricos"
+                },
+                {
+                    id: 2,
+                    name: "María Gómez",
+                    company: "Distribuciones Cali",
+                    phone: "3209876543",
+                    email: "maria@distribuciones.com",
+                    category: "cliente",
+                    notes: "Cliente preferencial, paga a 30 días"
+                },
+                {
+                    id: 3,
+                    name: "Juan Rodríguez",
+                    company: "Tecnologías Andinas",
+                    phone: "3174567890",
+                    email: "juan@tecnologias.com",
+                    category: "contacto",
+                    notes: "Contacto para posibles alianzas comerciales"
+                }
+            ]
+        };
+
+        // Elementos del DOM
+        const loginSection = document.getElementById('loginSection');
+        const directorySection = document.getElementById('directorySection');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const contactsContainer = document.getElementById('contactsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const addContactBtn = document.getElementById('addContactBtn');
+        const contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
+        const contactForm = document.getElementById('contactForm');
+        const saveContactBtn = document.getElementById('saveContactBtn');
+        const modalTitle = document.getElementById('modalTitle');
+
+        // Variables de estado
+        let currentUser = null;
+        let editingContactId = null;
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si hay un usuario logueado en sessionStorage
+            const loggedUser = sessionStorage.getItem('directoryUser');
+            if (loggedUser) {
+                currentUser = JSON.parse(loggedUser);
+                showDirectory();
+                loadContacts();
+            } else {
+                showLogin();
+            }
+
+            // Configurar event listeners
+            setupEventListeners();
+        });
+
+        // Mostrar sección de login
+        function showLogin() {
+            loginSection.style.display = 'block';
+            directorySection.style.display = 'none';
+        }
+
+        // Mostrar sección de directorio
+        function showDirectory() {
+            loginSection.style.display = 'none';
+            directorySection.style.display = 'block';
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Login
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                authenticateUser(username, password);
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', function() {
+                sessionStorage.removeItem('directoryUser');
+                currentUser = null;
+                showLogin();
+                loginForm.reset();
+            });
+
+            // Buscar contactos
+            searchInput.addEventListener('input', filterContacts);
+            categoryFilter.addEventListener('change', filterContacts);
+
+            // Agregar nuevo contacto
+            addContactBtn.addEventListener('click', function() {
+                editingContactId = null;
+                modalTitle.textContent = 'Agregar Nuevo Contacto';
+                contactForm.reset();
+                contactModal.show();
+            });
+
+            // Guardar contacto
+            saveContactBtn.addEventListener('click', saveContact);
+        }
+
+        // Autenticar usuario
+        function authenticateUser(username, password) {
+            const user = database.users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                sessionStorage.setItem('directoryUser', JSON.stringify(user));
+                showDirectory();
+                loadContacts();
+                loginError.classList.add('hidden');
+            } else {
+                loginError.textContent = 'Usuario o contraseña incorrectos';
+                loginError.classList.remove('hidden');
+            }
+        }
+
+        // Cargar contactos
+        function loadContacts() {
+            contactsContainer.innerHTML = '';
+            
+            database.contacts.forEach(contact => {
+                const contactCard = createContactCard(contact);
+                contactsContainer.appendChild(contactCard);
+            });
+        }
+
+        // Crear tarjeta de contacto
+        function createContactCard(contact) {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4';
+            
+            const card = document.createElement('div');
+            card.className = 'card contact-card h-100';
+            
+            // Determinar color de categoría
+            let categoryClass = '';
+            switch(contact.category) {
+                case 'proveedor':
+                    categoryClass = 'bg-primary';
+                    break;
+                case 'cliente':
+                    categoryClass = 'bg-success';
+                    break;
+                default:
+                    categoryClass = 'bg-secondary';
+            }
+            
+            card.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">${contact.name}</h5>
+                        <span class="badge ${categoryClass} category-badge">${contact.category}</span>
+                    </div>
+                    <h6 class="card-subtitle mb-2 text-muted">${contact.company || 'Sin empresa registrada'}</h6>
+                    <p class="card-text">
+                        <i class="bi bi-telephone"></i> ${contact.phone}<br>
+                        ${contact.email ? `<i class="bi bi-envelope"></i> ${contact.email}` : ''}
+                    </p>
+                    ${contact.notes ? `<p class="card-text"><small class="text-muted">${contact.notes}</small></p>` : ''}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${contact.id}">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${contact.id}">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </div>
+            `;
+            
+            col.appendChild(card);
+            
+            // Agregar event listeners a los botones
+            col.querySelector('.edit-btn').addEventListener('click', function() {
+                editContact(contact.id);
+            });
+            
+            col.querySelector('.delete-btn').addEventListener('click', function() {
+                deleteContact(contact.id);
+            });
+            
+            return col;
+        }
+
+        // Filtrar contactos
+        function filterContacts() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const category = categoryFilter.value;
+            
+            database.contacts.forEach(contact => {
+                const matchesSearch = contact.name.toLowerCase().includes(searchTerm) || 
+                                     (contact.company && contact.company.toLowerCase().includes(searchTerm)) ||
+                                     contact.phone.includes(searchTerm) ||
+                                     (contact.email && contact.email.toLowerCase().includes(searchTerm)) ||
+                                     (contact.notes && contact.notes.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = category === 'all' || contact.category === category;
+                
+                const contactElement = document.querySelector(`.edit-btn[data-id="${contact.id}"]`).closest('.col-md-6');
+                if (matchesSearch && matchesCategory) {
+                    contactElement.style.display = 'block';
+                } else {
+                    contactElement.style.display = 'none';
+                }
+            });
+        }
+
+        // Editar contacto
+        function editContact(id) {
+            const contact = database.contacts.find(c => c.id == id);
+            if (!contact) return;
+            
+            editingContactId = id;
+            modalTitle.textContent = 'Editar Contacto';
+            
+            document.getElementById('contactId').value = contact.id;
+            document.getElementById('contactName').value = contact.name;
+            document.getElementById('contactCompany').value = contact.company || '';
+            document.getElementById('contactPhone').value = contact.phone;
+            document.getElementById('contactEmail').value = contact.email || '';
+            document.getElementById('contactCategory').value = contact.category;
+            document.getElementById('contactNotes').value = contact.notes || '';
+            
+            contactModal.show();
+        }
+
+        // Guardar contacto (crear o actualizar)
+        function saveContact() {
+            const id = document.getElementById('contactId').value;
+            const name = document.getElementById('contactName').value;
+            const company = document.getElementById('contactCompany').value;
+            const phone = document.getElementById('contactPhone').value;
+            const email = document.getElementById('contactEmail').value;
+            const category = document.getElementById('contactCategory').value;
+            const notes = document.getElementById('contactNotes').value;
+            
+            if (!name || !phone || !category) {
+                alert('Por favor complete los campos obligatorios: Nombre, Teléfono y Categoría');
+                return;
+            }
+            
+            if (editingContactId) {
+                // Actualizar contacto existente
+                const index = database.contacts.findIndex(c => c.id == editingContactId);
+                if (index !== -1) {
+                    database.contacts[index] = {
+                        id: editingContactId,
+                        name,
+                        company,
+                        phone,
+                        email,
+                        category,
+                        notes
+                    };
+                }
+            } else {
+                // Crear nuevo contacto
+                const newId = database.contacts.length > 0 ? 
+                    Math.max(...database.contacts.map(c => c.id)) + 1 : 1;
+                
+                database.contacts.push({
+                    id: newId,
+                    name,
+                    company,
+                    phone,
+                    email,
+                    category,
+                    notes
+                });
+            }
+            
+            // Guardar en localStorage (simulando backend)
+            localStorage.setItem('directoryContacts', JSON.stringify(database.contacts));
+            
+            // Recargar contactos y cerrar modal
+            loadContacts();
+            contactModal.hide();
+        }
+
+        // Eliminar contacto
+        function deleteContact(id) {
+            if (confirm('¿Está seguro que desea eliminar este contacto?')) {
+                database.contacts = database.contacts.filter(c => c.id != id);
+                localStorage.setItem('directoryContacts', JSON.stringify(database.contacts));
+                loadContacts();
+            }
+        }
+    </script>
+</body>
+</html>
